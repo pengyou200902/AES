@@ -229,6 +229,7 @@ public class AESCipher {
                     w_j_4[i] = key[i][j - 4];
                     w_j_1[i] = key[i][j - 1];
                     w_j[i] = (byte) (w_j_4[i] ^ w_j_1[i]);
+                    key[i][j] = w_j[i]; //填入总密钥
                 }
             } else {
                 // T 函数内容
@@ -247,6 +248,7 @@ public class AESCipher {
                     // 而下方 w_j_1 即代表 w[j-1] 就是左循环移位1次并且字节代换后，而且与轮常量异或后的了
                     w_j_1[count] = (byte) (substituteByte(key[i][j - 1], false) ^ AESParam.Rcon[round]);
                     w_j[count] = (byte) (w_j_4[count] ^ w_j_1[count]);
+                    key[count][j] = w_j[count]; //填入总密钥
                 }
                 // T函数内容结束
             }
