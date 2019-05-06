@@ -4,17 +4,17 @@ import java.security.NoSuchAlgorithmException;
 
 public class AESCipher {
     public static byte[] Text;
-    //    public static byte[] initKey;   //初始密钥
     public static byte[][] key;   //密钥
     public static int length = 0;   //明文length，即字符数
     public static int keyLength = 0;
+    public static int keyCol = 44;  //  本例实现的是128位密钥的，故经过轮密钥加扩展后一共44列
     public static int cur = 0;  //取明文的字节分组时所用的下标
-    public static int col = 0;  //每组的列数不是final，因为密钥长度不同，列也会不同
+    public static int col = 0;  //每组的列数不是final，因为密钥长度不同，列也会不同，但其实本例只实现了128位密钥的，故col其实是4
     public final static int row = 4;    //但是行数是确定4行
 
     public AESCipher(String plainText, int keyLen) {
         keyLength = keyLen;
-        col = keyLength / row;
+        col = keyLength / 8 / row;
         getInitKey(keyLen);
         System.out.printf("明文字符数: %d\n", plainText.length());
         Text = plainText.getBytes();
@@ -22,7 +22,7 @@ public class AESCipher {
         System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), length);
     }
 
-    public static int byteToint(byte a) {
+    public static int byteToInt(byte a) {
         int x = a >= 0 ? a : a + 256;
         return x;
     }
@@ -58,7 +58,7 @@ public class AESCipher {
     }
 
     public static void getInitKey(int keyLength) { //初始化首次密钥
-        key = new byte[row][44];    //初始密钥4*4，扩展新增40列，得44列
+        key = new byte[row][keyCol];    //初始密钥4*4，扩展新增40列，得44列
         byte[] initKey = null;
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
@@ -71,7 +71,7 @@ public class AESCipher {
             System.out.printf("十六进制密钥长度: %d, 二进制密钥长度则为: %d, 产生密钥是: %s\n", s.length(), s.length() * 4, s);
             System.out.println("二进制     十六进制");
             for (int i = 0; i < initKey.length; i++) {
-                System.out.printf("%s     %2x\n", byteToBit(initKey[i]), byteToint(initKey[i]));
+                System.out.printf("%s     %2x\n", byteToBit(initKey[i]), byteToInt(initKey[i]));
             }System.out.println();
             int count = 0;
             for (int j = 0; j < 4; j++) {   //将初始密钥写入key数组
@@ -203,7 +203,7 @@ public class AESCipher {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < bytes[0].length; j++) {
                 for (int k = 0; k < AESParam.mixCol[0].length; k++) {
-                    mixedBytes[i][j] ^= mod2multiple(mixCol[i][k], byteToint(bytes[k][j]));
+                    mixedBytes[i][j] ^= mod2multiple(mixCol[i][k], byteToInt(bytes[k][j]));
                 }
             }
         }
@@ -211,13 +211,9 @@ public class AESCipher {
     }
 
     public void addRoundKey() {
-//        byte[][] key = new byte[row][44];   //初始密钥4*4，扩展新增40列，得44列
-//        int count = 0;
-//        for (int j = 0; j < 4; j++) {   //将初始密钥写入key数组
-//            for (int i = 0; i < row; i++) {
-//                key[i][j] = initKey[count++];
-//            }
-//        }
+        for (int i = 4; i < keyCol; i++) {
+
+        }
 
     }
 
@@ -234,7 +230,7 @@ public class AESCipher {
 
 //        for (int j = 0; j < 4; j++) {//初始密钥按列输出
 //            for (int i = 0; i < row; i++) {
-//                System.out.printf("%4x ", byteToint(key[i][j]));
+//                System.out.printf("%4x ", byteToInt(key[i][j]));
 //            }
 //            System.out.println();
 //        }
