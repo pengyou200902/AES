@@ -1,6 +1,7 @@
 public class AESParam { //
 
-    public static int[] Rcon = {    //轮常量
+    public static int[] Rcon = {    //轮常量，注意下标，有效下标从1开始
+            0x0,        //0
             0x01000000, //1
             0x02000000, //2
             0x04000000, //3
