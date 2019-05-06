@@ -84,6 +84,19 @@ public class AESCipher {
         }
     }
 
+    public static void leftLoopMove(byte[] bytes, int round) {
+        if (round > 0) {
+            int c = bytes.length;
+            byte[] b = bytes.clone();
+            for (int j = round, count = 0; count < c; count++, j = (j + 1) % c) {
+                bytes[count] = b[j]; //左循环移位
+            }
+        } else if (round == 0) return;
+        else {
+            System.out.println("Error round Num !!!");
+            return;
+        }
+    }
 
 //    public byte[] getGroupBytes(int begin, int end) {
 //        byte[] needByte;
@@ -138,10 +151,11 @@ public class AESCipher {
         int high_4 = (b >> 4) & 0b1111;
         int[][] sbox;
 
-        if (reverse) {
+        if (reverse) {  //逆操作
             sbox = AESParam._sbox;
         } else sbox = AESParam.sbox;
-        b = (byte) (AESParam.sbox[high_4][low_4]);
+
+        b = (byte) (sbox[high_4][low_4]);
         return b;
     }
 
@@ -152,16 +166,10 @@ public class AESCipher {
             int r = bytes.length;
             int c = bytes[0].length;
             for (int i = 1; i < r; i++) {
-                byte[] b = bytes[i].clone();
-                int count = 0;
-                for (int j = i; count < c; count++, j = (j + 1) % c) {
-                    bytes[i][count] = b[j]; //左循环移位
-                }
+                leftLoopMove(bytes[i], i);
             }
-//            return bytes;
         } else {
             System.out.println("Unknown Error!");
-//            return null;
         }
     }
 
@@ -196,7 +204,7 @@ public class AESCipher {
             System.out.println("Error col number !!!");
             return null;
         }
-        if (reverse) {
+        if (reverse) {  //逆操作
             mixCol = AESParam._mixCol;
         } else mixCol = AESParam.mixCol;
         //矩阵GF(2^8)乘法
@@ -210,8 +218,38 @@ public class AESCipher {
         return mixedBytes;
     }
 
-    public void addRoundKey() {
-        for (int i = 4; i < keyCol; i++) {
+    public void addRoundKey(boolean reverse) {
+        int round = 0;
+        byte[] w_j_1 = new byte[4];
+        byte[] w_j_4 = new byte[4];
+        byte[] w_j = new byte[4];
+        for (int j = 4; j < keyCol; j++) {
+            if (j % 4 != 0) {
+                for (int i = 0; i < row; i++) {
+                    w_j_4[i] = key[i][j - 4];
+                    w_j_1[i] = key[i][j - 1];
+                    w_j[i] = (byte) (w_j_4[i] ^ w_j_1[i]);
+                }
+            } else {
+                // T 函数内容
+//                byte[] b_w_j_1 = new byte[4];
+//                for (int i = 0; i < row; i++) {
+//                    w_j_4 += (byteToInt(key[i][j - 4]) << (24 - 8 * i));
+//                    b_w_j_1[i] = substituteByte(key[i][j - 1], false);
+//                }
+//                leftLoopMove(b_w_j_1, 1);
+//                for (int i = 0; i < row; i++) {
+//                    w_j_1 += ( b_w_j_1[i] << (24 - 8 * i) );
+//                }
+                round = j / 4;
+                for (int i = 1, count = 0; count < row; i = (i + 1) % row, count++) {
+                    w_j_4[count] = key[count][j - 4];    // 这样一来此处不变
+                    // 而下方 w_j_1 即代表 w[j-1] 就是左循环移位1次并且字节代换后，而且与轮常量异或后的了
+                    w_j_1[count] = (byte) (substituteByte(key[i][j - 1], false) ^ AESParam.Rcon[round]);
+                    w_j[count] = (byte) (w_j_4[count] ^ w_j_1[count]);
+                }
+                // T函数内容结束
+            }
 
         }
 
@@ -223,11 +261,12 @@ public class AESCipher {
 
 
     public static void main(String[] args) {
+        byte a = 123;
+        byte b = 23;
+        System.out.println(a ^ b);
 
 //        测试用代码
-        AESCipher aesCipher = new AESCipher("我是你爸爸Tom。", 128);
-
-
+//        AESCipher aesCipher = new AESCipher("我是你爸爸Tom。", 128);
 //        for (int j = 0; j < 4; j++) {//初始密钥按列输出
 //            for (int i = 0; i < row; i++) {
 //                System.out.printf("%4x ", byteToInt(key[i][j]));
