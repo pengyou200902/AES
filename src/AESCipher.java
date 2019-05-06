@@ -1,6 +1,5 @@
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
 public class AESCipher {
@@ -9,8 +8,8 @@ public class AESCipher {
     public static int length = 0;
     public static int keyLength = 0;
     public static int cur = 0;
-    public static int col = 0;
-    public final static int row = 4;
+    public static int col = 0;  //每组的列数不是final，因为密钥长度不同，列也会不同
+    public final static int row = 4;    //但是行数是确定4行
 
     public AESCipher(String plainText, int keyLength) {
         this.keyLength = keyLength;
@@ -28,6 +27,11 @@ public class AESCipher {
 //            e.printStackTrace();
 //
 //        }
+    }
+
+    public static int byteToint(byte a) {
+        int x = a >= 0 ? a : a + 256;
+        return x;
     }
 
     public static StringBuffer byteToBit(byte b) {
@@ -61,7 +65,7 @@ public class AESCipher {
         return sb.toString();
     }
 
-    public static byte[] getInitKey(int keyLength) {
+    public static byte[] getInitKey(int keyLength) { //初始化首次密钥
         byte[] initKey = null;
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
@@ -102,34 +106,48 @@ public class AESCipher {
 //        }
 //    }
 
-    public byte[][] nextGroupBytes() { // 按列分组
-        int remain = length - cur;
+    public byte[][] nextGroupBytes() { // 获取按列分组的字节组
+        int remain = length - 1 - cur;  // cur是下标，从0开始，length是长度
         byte[][] subBytes = new byte[row][col];
-        if (remain >= keyLength) {
+        if (remain >= keyLength) {  //剩下的待加密内容长度足够，即不小于分组长度（密钥长度）
             for (int j = 0; j < col; j++) {
                 for (int i = 0; i < row; i++) {
-                    subBytes[j][i] = gbkText[cur++];
+                    subBytes[i][j] = gbkText[cur++];
                 }
             }
-        } else if (remain > 0) {
+        } else if (remain > 0) {    //剩下的待加密内容小于所需的分组长度（密钥长度），采取了补0
+//            for (int j = 0; j < col && remain > 0; j++) { // 此部分未采取补0
+//                for (int i = 0; i < row && remain > 0; i++, remain--) {
+//                    subBytes[i][j] = gbkText[cur++];
+//                }
+//            }
+            for (int j = 0; j < col; j++) {
+                for (int i = 0; i < row; i++) {
+                    if (cur < length) {  //此处应该等价于if(remain > 0)
+                        subBytes[i][j] = gbkText[cur++];
+                    } else {
+                        subBytes[i][j] = (byte) 0;
+                    }
+                }
+            }
 
-            for (int j = 0; j < col && remain > 0; j++) {
-                for (int i = 0; i < row && remain > 0; i++, remain--) {
-                    subBytes[j][i] = gbkText[cur++];
-                }
-            }
         }
         return subBytes;
     }
 
-    public static byte substituteByte(byte b) {
-        int high_4 = (b >> 4) & 0b00001111;
-        int low_4 = b & 0b00001111;
+    public static byte substituteByte(byte b, boolean reverse) { //字节替换
+        int low_4 = b & 0b1111;
+        int high_4 = (b >> 4) & 0b1111;
+        int[][] sbox;
+
+        if (reverse) {
+            sbox = AESParam._sbox;
+        } else sbox = AESParam.sbox;
         b = (byte) (AESParam.sbox[high_4][low_4]);
         return b;
     }
 
-    public byte[][] shiftRows(byte[][] bytes) {
+    public byte[][] shiftRows(byte[][] bytes) { //行移位
         if (bytes == null) return null;
         else if (bytes.length == 0) return bytes;
         else if (bytes.length > 1) {
@@ -149,11 +167,71 @@ public class AESCipher {
         }
     }
 
-// TO DO mix columns
+    // GF(2^8)乘法
+    public static int mod2multiple(int a, int b) {
+        if (a == 0 || b == 0) return 0;
+        if (a == 1) return b;
+        if (b == 1) return a;
+        int count = 0;
+        int result = 0;
+
+        do {
+            result ^= ((a * (b & 0b1)) << count);
+            count++;
+            b >>= 1;
+        } while (b != 0);
+        if ((result >> 7) == 1) {
+            result ^= 0b00011011;
+        }
+        return (result & 0b11111111);
+    }
+
+
+    public byte[][] mixColumns(byte[][] bytes, boolean reverse) { //列混淆,参数是待混淆的
+        int set_col = bytes[0].length;
+        byte[][] mixedBytes;
+        final int[][] mixCol;
+
+        if (set_col >= 4) {  //判断一下col有效与否
+            mixedBytes = new byte[row][set_col];
+        } else {
+            System.out.println("Error col number !!!");
+            return null;
+        }
+        if (reverse) {
+            mixCol = AESParam._mixCol;
+        } else mixCol = AESParam.mixCol;
+        //矩阵GF(2^8)乘法
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < bytes[0].length; j++) {
+                for (int k = 0; k < AESParam.mixCol[0].length; k++) {
+                    mixedBytes[i][j] ^= mod2multiple(mixCol[i][k], byteToint(bytes[k][j]));
+                }
+            }
+        }
+        return mixedBytes;
+    }
+
+
 
 
     public static void main(String[] args) {
-        AESCipher aesCipher = new AESCipher("我是你爸爸Tom。", 128);
+//        AESCipher aesCipher = new AESCipher("我是你爸爸Tom。", 128);
+//        System.out.println(0b1111 ^ 0b100011);// = 101100 = System.out.println(0b101100);
+//        System.out.println(mod2multiple(2,0xc9) ^ mod2multiple(3,0x7a) ^ mod2multiple(1,0x63) ^ mod2multiple(1,0xb0));
+//        System.out.println(0xd4);
+//        System.out.println(mod2multiple(1,0xc9) ^ mod2multiple(2,0x7a) ^ mod2multiple(3,0x63) ^ mod2multiple(1,0xb0));
+//        System.out.println(0x28);
+//        System.out.println(mod2multiple(1,0xc9) ^ mod2multiple(1,0x7a) ^ mod2multiple(2,0x63) ^ mod2multiple(3,0xb0));
+//        System.out.println(0xbe);
+//        System.out.println(mod2multiple(3,0xc9) ^ mod2multiple(1,0x7a) ^ mod2multiple(1,0x63) ^ mod2multiple(2,0xb0));
+//        System.out.println(0x22);
+//        System.out.println(mod2multiple(2,0xc9) ^ mod2multiple(3,0x6e) ^ mod2multiple(1,0x46) ^ mod2multiple(1,0xa6));
+//        System.out.println(0xdb);
+
+//        System.out.println("aaa");
+//        System.out.println(mod2multiple(3,0x63));
+
 //        byte[] t= {};
 //        System.out.println(t.length);
         /* check substitute
