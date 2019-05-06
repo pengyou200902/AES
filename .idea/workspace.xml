@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3b6a57e5-cda8-431d-b458-3e948b9c5719" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/AES.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/production/AES/META-INF/AES.kotlin_module" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AESCipher.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/AESParam.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/AESCipher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/AESCipher.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,20 +17,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/AESParam.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="38">
-              <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
+            <state relative-caret-position="1026">
+              <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/AESCipher.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="203">
-              <caret line="74" column="12" selection-start-line="74" selection-start-column="12" selection-end-line="74" selection-end-column="12" />
+            <state relative-caret-position="516">
+              <caret line="206" column="8" selection-start-line="206" selection-start-column="8" selection-end-line="206" selection-end-column="8" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -57,16 +50,15 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find />
-      <find />
       <find>private</find>
       <find>this.</find>
+      <find>(int)</find>
     </findStrings>
     <replaceStrings>
       <replace />
       <replace>,</replace>
-      <replace />
-      <replace />
       <replace>public</replace>
+      <replace>(byte)</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -78,6 +70,7 @@
       </list>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="SIGN_OFF_COMMIT" value="true" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -98,6 +91,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -114,7 +108,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -178,11 +171,62 @@
       <workItem from="1556548492539" duration="1617000" />
       <workItem from="1556602012944" duration="14000" />
       <workItem from="1557109172982" duration="763000" />
+      <workItem from="1557110019996" duration="16552000" />
     </task>
+    <task id="LOCAL-00001" summary="初次传到git，还需要写MixColunm，根据git的提示，考虑后续部分成员及方法改为private">
+      <created>1557110093482</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1557110093482</updated>
+    </task>
+    <task id="LOCAL-00002" summary="该类提供AES所需的S盒与逆S盒">
+      <created>1557113587992</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1557113587992</updated>
+    </task>
+    <task id="LOCAL-00003" summary="添加了列混淆所需的矩阵，但发现没必要用到矩阵">
+      <created>1557123273984</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1557123273984</updated>
+    </task>
+    <task id="LOCAL-00004" summary="添加了列混淆所需的矩阵">
+      <created>1557141544575</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1557141544575</updated>
+    </task>
+    <task id="LOCAL-00005" summary="添加了列混淆所需的矩阵，并使用int型代替byte型">
+      <created>1557143984644</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1557143984644</updated>
+    </task>
+    <task id="LOCAL-00006" summary="byte转int统一用函数，反之直接强转，添加了GF(2^8)乘法及mixColumns">
+      <created>1557144789114</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1557144789114</updated>
+    </task>
+    <task id="LOCAL-00007" summary="准备写轮密钥加及加密函数，之前还为字节代换和列混淆添加了逆操作选择参数">
+      <created>1557145255569</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1557145255569</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="16262000" />
+    <option name="totallyTimeSpent" value="32814000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -197,7 +241,7 @@
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.15934066" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12637363" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
@@ -206,17 +250,17 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.33367348" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4969475" visible="true" weight="0.33367348" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32959184" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.4993895" weight="0.32959184" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.498779" weight="0.22244897" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Terminal" order="10" weight="0.32959184" />
-      <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.501221" side_tool="true" visible="true" weight="0.32959184" />
-      <window_info anchor="bottom" id="Messages" order="12" sideWeight="0.498779" visible="true" weight="0.32959184" />
+      <window_info anchor="bottom" id="Event Log" order="11" sideWeight="0.50305253" side_tool="true" visible="true" weight="0.33367348" />
+      <window_info anchor="bottom" id="Messages" order="12" sideWeight="0.498779" weight="0.32959184" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -256,11 +300,32 @@
         </entry>
       </map>
     </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="初次传到git，还需要写MixColunm" />
     <MESSAGE value="初次传到git，还需要写MixColunm，根据git的提示，考虑后续部分成员及方法改为private" />
-    <option name="LAST_COMMIT_MESSAGE" value="初次传到git，还需要写MixColunm，根据git的提示，考虑后续部分成员及方法改为private" />
+    <MESSAGE value="该类提供AES所需的S盒与逆S盒" />
+    <MESSAGE value="添加了列混淆所需的矩阵，但发现没必要用到矩阵" />
+    <MESSAGE value="添加了列混淆所需的矩阵" />
+    <MESSAGE value="添加了列混淆所需的矩阵，并使用int型代替byte型" />
+    <MESSAGE value="byte转int统一用函数，反之直接强转，添加了GF(2^8)乘法及mixColumns" />
+    <MESSAGE value="准备写轮密钥加及加密函数，之前还为字节代换和列混淆添加了逆操作选择参数" />
+    <option name="LAST_COMMIT_MESSAGE" value="准备写轮密钥加及加密函数，之前还为字节代换和列混淆添加了逆操作选择参数" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="editorHistoryManager">
     <entry file="jrt:///Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home!/java.base/javax/crypto/KeyGeneratorSpi.class" />
@@ -269,20 +334,91 @@
     <entry file="jrt:///Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home!/java.base/javax/crypto/SecretKey.class" />
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home/lib/src.zip!/java.base/java/lang/String.java" />
     <entry file="jar:///Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home/lib/src.zip!/java.base/java/lang/StringBuffer.java" />
-    <entry file="file://$PROJECT_DIR$/src/AESCipher.java">
+    <entry file="jar://$PROJECT_DIR$/../../../../Programing/JDK/jdk-11.0.3.jdk/Contents/Home/lib/src.zip!/java.base/java/lang/String.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="3253" column="27" selection-start-line="3253" selection-start-column="27" selection-end-line="3253" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/../../../../Programing/JDK/jdk-11.0.3.jdk/Contents/Home/lib/src.zip!/java.base/java/lang/Integer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="203">
-          <caret line="74" column="12" selection-start-line="74" selection-start-column="12" selection-end-line="74" selection-end-column="12" />
+          <caret line="330" column="25" selection-start-line="330" selection-start-column="25" selection-end-line="330" selection-end-column="25" />
           <folding>
+            <element signature="e#0#70489#0" expanded="true" />
             <element signature="imports" expanded="true" />
+            <element signature="e#1908#1938#0" expanded="true" />
+            <element signature="e#7061#7062#0" expanded="true" />
+            <element signature="e#7131#7132#0" expanded="true" />
+            <element signature="e#8924#8925#0" expanded="true" />
+            <element signature="e#8970#8971#0" expanded="true" />
+            <element signature="e#10436#10437#0" expanded="true" />
+            <element signature="e#10482#10483#0" expanded="true" />
+            <element signature="e#11853#11854#0" expanded="true" />
+            <element signature="e#11899#11900#0" expanded="true" />
+            <element signature="e#17180#17181#0" expanded="true" />
+            <element signature="e#17235#17236#0" expanded="true" />
+            <element signature="e#42078#42079#0" expanded="true" />
+            <element signature="e#42112#42113#0" expanded="true" />
+            <element signature="e#43229#43230#0" expanded="true" />
+            <element signature="e#43263#43264#0" expanded="true" />
+            <element signature="e#43477#43478#0" expanded="true" />
+            <element signature="e#43512#43513#0" expanded="true" />
+            <element signature="e#43663#43664#0" expanded="true" />
+            <element signature="e#43691#43692#0" expanded="true" />
+            <element signature="e#43940#43941#0" expanded="true" />
+            <element signature="e#43974#43975#0" expanded="true" />
+            <element signature="e#44186#44187#0" expanded="true" />
+            <element signature="e#44221#44222#0" expanded="true" />
+            <element signature="e#44436#44437#0" expanded="true" />
+            <element signature="e#44472#44473#0" expanded="true" />
+            <element signature="e#44933#44934#0" expanded="true" />
+            <element signature="e#44971#44972#0" expanded="true" />
+            <element signature="e#45258#45259#0" expanded="true" />
+            <element signature="e#45304#45305#0" expanded="true" />
+            <element signature="e#45598#45599#0" expanded="true" />
+            <element signature="e#45626#45627#0" expanded="true" />
+            <element signature="e#47590#47591#0" expanded="true" />
+            <element signature="e#47633#47634#0" expanded="true" />
+            <element signature="e#56168#56169#0" expanded="true" />
+            <element signature="e#56232#56233#0" expanded="true" />
+            <element signature="e#56810#56811#0" expanded="true" />
+            <element signature="e#56866#56867#0" expanded="true" />
+            <element signature="e#57389#57390#0" expanded="true" />
+            <element signature="e#57449#57450#0" expanded="true" />
+            <element signature="e#58218#58219#0" expanded="true" />
+            <element signature="e#58265#58266#0" expanded="true" />
+            <element signature="e#61006#61007#0" expanded="true" />
+            <element signature="e#61072#61073#0" expanded="true" />
+            <element signature="e#66227#66228#0" expanded="true" />
+            <element signature="e#66285#66286#0" expanded="true" />
+            <element signature="e#67412#67413#0" expanded="true" />
+            <element signature="e#67470#67471#0" expanded="true" />
+            <element signature="e#69501#69502#0" expanded="true" />
+            <element signature="e#69529#69530#0" expanded="true" />
+            <element signature="e#69896#69897#0" expanded="true" />
+            <element signature="e#69933#69934#0" expanded="true" />
+            <element signature="e#70300#70301#0" expanded="true" />
+            <element signature="e#70337#70338#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/AESParam.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
+        <state relative-caret-position="1026">
+          <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/AESCipher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="516">
+          <caret line="206" column="8" selection-start-line="206" selection-start-column="8" selection-end-line="206" selection-end-column="8" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
