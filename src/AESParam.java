@@ -1,13 +1,13 @@
 public class AESParam { //
 
-    public static final byte[][] mixCol = { //突然发现是右循环移位
+    public static final int[][] mixCol = { //突然发现是右循环移位
             {2, 3, 1, 1},
             {1, 2, 3, 1},
             {1, 1, 2, 3},
             {3, 1, 1, 2}
     };
 
-    public static final byte[][] _mixCol = { //一样是循环移位
+    public static final int[][] _mixCol = { //一样是循环移位
             {0xE, 0xB, 0xD, 0x9}, //14, 11, 13, 9
             {0x9, 0xE, 0xB, 0xD}, //9, 14, 11, 13
             {0xD, 0x9, 0xE, 0xB}, //13, 9, 14, 11
