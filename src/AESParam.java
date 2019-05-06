@@ -1,18 +1,18 @@
 public class AESParam { //
 
-//    public static final int[][] mixCol = { //突然发现是右循环移位
-//            {2, 3, 1, 1},
-//            {1, 2, 3, 1},
-//            {1, 1, 2, 3},
-//            {3, 1, 1, 2}
-//    };
-//
-//    public static final int[][] _mixCol = { //一样是循环移位
-//            {0xE, 0xB, 0xD, 0x9}, //14, 11, 13, 9
-//            {0x9, 0xE, 0xB, 0xD}, //9, 14, 11, 13
-//            {0xD, 0x9, 0xE, 0xB}, //13, 9, 14, 11
-//            {0xB, 0xD, 0x9, 0xE}  //11, 13, 9, 14
-//    };
+    public static final byte[][] mixCol = { //突然发现是右循环移位
+            {2, 3, 1, 1},
+            {1, 2, 3, 1},
+            {1, 1, 2, 3},
+            {3, 1, 1, 2}
+    };
+
+    public static final byte[][] _mixCol = { //一样是循环移位
+            {0xE, 0xB, 0xD, 0x9}, //14, 11, 13, 9
+            {0x9, 0xE, 0xB, 0xD}, //9, 14, 11, 13
+            {0xD, 0x9, 0xE, 0xB}, //13, 9, 14, 11
+            {0xB, 0xD, 0x9, 0xE}  //11, 13, 9, 14
+    };
 
     public static final int[][] sbox = {
             {0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76},
