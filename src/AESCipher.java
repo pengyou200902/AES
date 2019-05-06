@@ -3,11 +3,11 @@ import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 
 public class AESCipher {
-    public static byte[] gbkText;
-    public static byte[] initKey;
-    public static int length = 0;
+    public static byte[] Text;
+    public static byte[] initKey;   //初始密钥
+    public static int length = 0;   //明文length，即字符数
     public static int keyLength = 0;
-    public static int cur = 0;
+    public static int cur = 0;  //取明文的字节分组时所用的下标
     public static int col = 0;  //每组的列数不是final，因为密钥长度不同，列也会不同
     public final static int row = 4;    //但是行数是确定4行
 
@@ -16,8 +16,8 @@ public class AESCipher {
         this.col = this.keyLength / this.row;
         this.initKey = getInitKey(keyLength);
         System.out.printf("明文字符数: %d\n", plainText.length());
-        this.gbkText = plainText.getBytes();
-        this.length = gbkText.length;
+        this.Text = plainText.getBytes();
+        this.length = Text.length;
         System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), this.length);
     }
 
@@ -64,14 +64,13 @@ public class AESCipher {
             SecretKey key = keyGenerator.generateKey();
             initKey = key.getEncoded();
             String s = bytesToHexString(initKey);
-            System.out.println(s.getBytes().length);
+            /*测试用输出
             System.out.printf("十六进制密钥长度: %d, 二进制密钥长度则为: %d, 产生密钥是: %s\n", s.length(), s.length() * 4, s);
-//            StringBuffer sb = new StringBuffer();
+            System.out.println("二进制     十六进制");
             for (int i = 0; i < initKey.length; i++) {
-//                sb.append(byteToBit(initKey[i]));
-                System.out.println(byteToBit(initKey[i]));
-            }
-            System.out.println();
+                System.out.printf("%s     %2x\n", byteToBit(initKey[i]), byteToint(initKey[i]));
+            }System.out.println();
+            */
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -84,10 +83,10 @@ public class AESCipher {
 //            System.out.println("begin must not > end!");
 //            return null;
 //        }
-//        else if(begin <= end && end < gbkText.length && begin > -1) {
+//        else if(begin <= end && end < Text.length && begin > -1) {
 //            needByte = new byte[end - begin + 1];
 //            for (int i = begin; i <= end; i++) {
-//                needByte[i] = gbkText[begin + i];
+//                needByte[i] = Text[begin + i];
 //            }
 //            return needByte;
 //        }
@@ -100,22 +99,22 @@ public class AESCipher {
     public byte[][] nextGroupBytes() { // 获取按列分组的字节组
         int remain = length - 1 - cur;  // cur是下标，从0开始，length是长度
         byte[][] subBytes = new byte[row][col];
-        if (remain >= keyLength) {  //剩下的待加密内容长度足够，即不小于分组长度（密钥长度）
+        if (remain >= keyLength) {  //剩下的待加密内容长度足够，即 >= 分组长度（密钥长度）
             for (int j = 0; j < col; j++) {
                 for (int i = 0; i < row; i++) {
-                    subBytes[i][j] = gbkText[cur++];
+                    subBytes[i][j] = Text[cur++];
                 }
             }
-        } else if (remain > 0) {    //剩下的待加密内容小于所需的分组长度（密钥长度），采取了补0
+        } else if (remain > 0) {    //剩下的待加密内容 < 所需的分组长度（密钥长度），采取了补0
 //            for (int j = 0; j < col && remain > 0; j++) { // 此部分未采取补0
 //                for (int i = 0; i < row && remain > 0; i++, remain--) {
-//                    subBytes[i][j] = gbkText[cur++];
+//                    subBytes[i][j] = Text[cur++];
 //                }
 //            }
             for (int j = 0; j < col; j++) {
                 for (int i = 0; i < row; i++) {
                     if (cur < length) {  //此处应该等价于if(remain > 0)
-                        subBytes[i][j] = gbkText[cur++];
+                        subBytes[i][j] = Text[cur++];
                     } else {
                         subBytes[i][j] = (byte) 0;
                     }
@@ -203,13 +202,19 @@ public class AESCipher {
         return mixedBytes;
     }
 
+    public void addRoundKey() {
+
+    }
+
     public void cipher() {
 
     }
 
 
     public static void main(String[] args) {
-//        AESCipher aesCipher = new AESCipher("我是你爸爸Tom。", 128);
+
+//        测试用代码
+        AESCipher aesCipher = new AESCipher("我是你爸爸Tom。", 128);
 //        System.out.println(0b1111 ^ 0b100011);// = 101100 = System.out.println(0b101100);
 //        System.out.println(mod2multiple(2,0xc9) ^ mod2multiple(3,0x7a) ^ mod2multiple(1,0x63) ^ mod2multiple(1,0xb0));
 //        System.out.println(0xd4);
@@ -221,10 +226,6 @@ public class AESCipher {
 //        System.out.println(0x22);
 //        System.out.println(mod2multiple(2,0xc9) ^ mod2multiple(3,0x6e) ^ mod2multiple(1,0x46) ^ mod2multiple(1,0xa6));
 //        System.out.println(0xdb);
-
-//        System.out.println("aaa");
-//        System.out.println(mod2multiple(3,0x63));
-
 //        byte[] t= {};
 //        System.out.println(t.length);
         /* check substitute
