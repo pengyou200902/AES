@@ -263,9 +263,9 @@ public class AESCipher {
 
 
     public static void main(String[] args) {
-        byte a = 123;
-        byte b = 23;
-        System.out.println(a ^ b);
+//        byte a = 123;
+//        byte b = 23;
+//        System.out.println(a ^ b);
 
 //        测试用代码
 //        AESCipher aesCipher = new AESCipher("我是你爸爸Tom。", 128);
