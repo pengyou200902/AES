@@ -19,14 +19,6 @@ public class AESCipher {
         this.gbkText = plainText.getBytes();
         this.length = gbkText.length;
         System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), this.length);
-//        try {
-//            this.gbkText = plainText.getBytes("GBK");
-//            this.length = gbkText.length;
-//            System.out.printf("GBK编码字节数: %d\n", this.length);
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//
-//        }
     }
 
     public static int byteToint(byte a) {
@@ -43,7 +35,6 @@ public class AESCipher {
                 .append((byte) ((b >> 3) & 0x1))
                 .append((byte) ((b >> 2) & 0x1))
                 .append((byte) ((b >> 1) & 0x1))
-//                .append((byte) ((b >> 0) & 0x1));
                 .append((byte) (b & 0x1));
     }
 
@@ -212,7 +203,9 @@ public class AESCipher {
         return mixedBytes;
     }
 
+    public void cipher() {
 
+    }
 
 
     public static void main(String[] args) {
