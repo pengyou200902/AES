@@ -213,29 +213,66 @@ public class AESCipher {
         if (a == 0 || b == 0) return 0;
         if (a == 1) return b;
         if (b == 1) return a;
+
         int count = 0;
         int result = 0;
-
+        int bit = 0;
+//        a &= 0b11111111;
+//        b &= 0b11111111;
+//        result ^= (a * bit);
+//        b ^= bit;
 //        System.out.println("gf28 while");
-        do {
-//            System.out.printf("b=%d\n", b);
-            result ^= ((a * (b & 0b1)) << count);
-            count++;
-            b >>= 1;
-        } while (b != 0);
-        if ((result >> 7) == 1) {
-            result ^= 0b00011011;
+        for (int i = 0; i < 8; ++i) {
+            if ((a & 1) == 1) {
+                result ^= b;
+            }
+            int flag = (b & 0b100000000);
+            b <<= 1;
+            if (flag == 1) {
+                b ^= 0x1B; /* x^8 + x^4 + x^3 + x + 1 */
+            }
+            a >>= 1;
         }
+
+//        while (b != 0) {
+//            System.out.printf("b=%d\n", b);
+
+
+//            --------------------------
+//            result <<= 1;
+//            if ((result & 0b100000000) == 1) {
+//                result ^= 0b100011011;
+//            }
+//            result ^= ( (a * (b & 1)) << count);
+//            b >>= 1;
+//            count++;
+
+//            --------------------------
+//            bit = b & 0b1;
+//            if(bit == 0) {
+//                result <<= 1;
+//                if (((result >> 8) & 0b1) == 1) {
+//                    result ^= 0b100011011;
+//                }
+//                b >>= 1;
+//                count++;
+//            }
+//            else {  // 就是bit == 1
+//                result ^= (a << count);
+//                b ^= bit;
+//            }
+//            result &= 0b11111111;
+//        }
         return (result & 0b11111111);
     }
 
 
-    public byte[][] mixColumns(byte[][] bytes, boolean reverse) { //列混淆,参数是待混淆的
+    public static byte[][] mixColumns(byte[][] bytes, boolean reverse) { //列混淆,参数是待混淆的
         int set_col = bytes[0].length;
         byte[][] mixedBytes;
         final int[][] mixCol;
 
-        if (set_col >= 4) {  //判断一下col有效与否
+        if (set_col > 0) {  //判断一下col有效与否
             mixedBytes = new byte[row][set_col];
         } else {
             System.out.println("Error col number !!!");
