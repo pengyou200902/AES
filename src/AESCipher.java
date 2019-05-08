@@ -13,7 +13,7 @@ public class AESCipher {
     public static int cipherLength = 0;    //明文补0后加密产生的密文字节数，也是补0后明文的字节数
     public static int keyCol = 44;  //  本例实现的是128位密钥的，故经过轮密钥加扩展后一共44列
     public static int cur = 0;  //取明文的字节分组时所用的下标
-    public static int col = 0;  //每组的列数不是final，因为密钥长度不同，列也会不同，但其实本例只实现了128位密钥的，故col其实是4
+    public static int col = 4;  //每组的列数不是final，因为密钥长度不同，列也会不同，但其实本例只实现了128位密钥的，故col其实是4
     public static boolean extendKey = false;
     public final static int row = 4;    //但是行数是确定4行
     private static Scanner sc = new Scanner(System.in);
@@ -151,12 +151,13 @@ public class AESCipher {
         int maxLen = reverse ? cipherLength : length;
         byte[] bytes = reverse ? cipherBytes : textBytes;
         if (cur >= maxLen) return null;
-
+        byte a = "a".getBytes()[0];
         byte[][] subBytes = new byte[row][col];
 
-        for (int j = 0; j < col && cur < maxLen; j++) {
-            for (int i = 0; i < row && cur < maxLen; i++) {
-                subBytes[i][j] = bytes[cur++];
+        for (int j = 0; j < col; j++) {
+            for (int i = 0; i < row; i++) {
+                if (cur < maxLen) subBytes[i][j] = bytes[cur++];
+                else subBytes[i][j] = a; //补a
             }
         }
 //        System.out.printf("cur=%d, end next\n", cur);
@@ -174,6 +175,14 @@ public class AESCipher {
 
         b = (byte) (sbox[high_4][low_4]);
         return b;
+    }
+
+    public static void subBytes(byte[][] bytes, boolean reverse) {
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                bytes[i][j] = substituteByte(bytes[i][j], reverse);
+            }
+        }
     }
 
     public void shiftRows(byte[][] bytes, boolean reverse) { //行移位，数组为引用传递，故使用void
@@ -204,7 +213,9 @@ public class AESCipher {
         int count = 0;
         int result = 0;
 
+//        System.out.println("gf28 while");
         do {
+//            System.out.printf("b=%d\n", b);
             result ^= ((a * (b & 0b1)) << count);
             count++;
             b >>= 1;
@@ -233,12 +244,17 @@ public class AESCipher {
         //矩阵GF(2^8)乘法
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < set_col; j++) {
+//                mixedBytes[i][j] = (byte) (GF28multiple(mixCol[i][0], byteToInt(bytes[0][i]))
+//                                        ^ GF28multiple(mixCol[i][1], byteToInt(bytes[1][i]))
+//                                        ^ GF28multiple(mixCol[i][2], byteToInt(bytes[2][i]))
+//                                        ^ GF28multiple(mixCol[i][3], byteToInt(bytes[3][i])));
                 for (int k = 0; k < mixCol[0].length; k++) {
                     mixedBytes[i][j] ^= GF28multiple(mixCol[i][k], byteToInt(bytes[k][j])); // 参与运算应该这样转int ????
 //                    mixedBytes[i][j] ^= GF28multiple(mixCol[i][k], bytes[k][j]);
                 }
             }
         }
+
         return mixedBytes;
     }
 
@@ -273,9 +289,8 @@ public class AESCipher {
 
     public void addRoundKey(byte[][] bytes, int round) {
         for (int j = 0, k = round * 4; k < round + 4; j++, k++) {
-
             for (int i = 0; i < row; i++) {
-                bytes[i][j] ^= key[i][k];
+                bytes[i][j] = (byte) (bytes[i][j] ^ key[i][k]);
             }
         }
     }
@@ -300,16 +315,14 @@ public class AESCipher {
             addRoundKey(state, round);
             for (round = 1; round <= 10; round++) { // round为轮数，前9轮有mixColumns
 //                System.out.printf("第 %d 轮\n", round);
-                for (int i = 0; i < row; i++) {
-                    for (int j = 0; j < col; j++) {
-                        state[i][j] = substituteByte(state[i][j], false);
-                    }
-                }   // end substituteByte
+                subBytes(state, false); // end substituteByte
 //                System.out.println("end substituteByte");
                 shiftRows(state, false);   // end shiftRows
 //                System.out.println("end shiftRows");
-                if (round < 10) state = mixColumns(state, false); // end mixColumns
-//                System.out.println("end mixColumns");
+                if (round < 10) {
+                    state = mixColumns(state, false); // end mixColumns
+//                    System.out.println("end mixColumns");
+                }
                 addRoundKey(state, round); // end addRoundKey
 //                System.out.println("end addRoundKey");
             } // end 10 rounds
@@ -330,20 +343,25 @@ public class AESCipher {
         cur = cipherLength - 16;
         decipherBytes = new byte[cipherLength];
         while (true) { // decryption
+            round = 0;
             state = nextGroupBytes(true);
             if (state == null) break;
+            addRoundKey(state, round);
+//            shiftRows(state, true); //书上
+//            subBytes(state, true);  //书上
 
-            addRoundKey(state, 0);
             for (round = 10; round > 0; round--) {
-//            for (round = 0; round < 9; round--) {
+//            for (round = 1; round <= 10; round++) {
                 shiftRows(state, true);
-                for (int i = 0; i < row; i++) {
-                    for (int j = 0; j < col; j++) {
-                        state[i][j] = substituteByte(state[i][j], true);
-                    }
-                }   // end De-substituteByte
+                subBytes(state, true);  // end De-substituteByte
+//                System.out.println("end de-substituteByte");
                 addRoundKey(state, round);  // end De-addRoundKey
-                if (round > 1) mixColumns(state, true); // end De-mixColumns
+//                System.out.println("end De-addRoundKey");
+                if (round > 1) {
+                    mixColumns(state, true); // end De-mixColumns
+//                    System.out.println("end De-mixColumns");
+                }
+//                if (round < 10) mixColumns(state, true); // end De-mixColumns
             }
             for (int j = 0; j < col; j++) { // store the deciphered bytes
                 for (int i = 0; i < row; i++) {
@@ -352,4 +370,5 @@ public class AESCipher {
             } // end store
         }
     }
+
 }
