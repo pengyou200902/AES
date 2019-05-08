@@ -4,11 +4,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public class AESCipher {
-    public static byte[] Text;  // 明文字节数组
-    public static byte[] cipherBytes; // 明文补0后加密产生的密文
+    public static byte[] textBytes;  // 明文字节数组
+    public static byte[] cipherBytes; // 明文补0后加密产生的密文字节数，也是补0后明文的字节数
     public static byte[][] key;   //密钥
-    public static int length = 0;   //明文length，即字符数
+    public static int length = 0;   //明文即字节数，未补0
     public static int keyLength = 0;    //密钥的bit位数
+    public static int cipherLength = 0;    //密文byte[]的数组长度
     public static int keyCol = 44;  //  本例实现的是128位密钥的，故经过轮密钥加扩展后一共44列
     public static int cur = 0;  //取明文的字节分组时所用的下标
     public static int col = 0;  //每组的列数不是final，因为密钥长度不同，列也会不同，但其实本例只实现了128位密钥的，故col其实是4
@@ -19,17 +20,20 @@ public class AESCipher {
     public AESCipher(String plainText, int keyLen) {
         cur = 0;
         keyLength = keyLen;
-        col = keyLength / 8 / row;
+        int groupLength = keyLength / 8;
+        col = groupLength / row;
         extendKey = false;
         initKey(keyLen);
         System.out.printf("明文字符数: %d\n", plainText.length());
-        Text = plainText.getBytes();
-        length = Text.length;
+        textBytes = plainText.getBytes();
+        length = textBytes.length;
+        if (length / groupLength != 0) cipherLength = (length / groupLength + 1) * groupLength;
+        else cipherLength = length / groupLength * groupLength;
         System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), length);
     }
 
     public static String plaintextInput() {
-        System.out.print("请输入待加密的明文：");
+        System.out.println("请输入待加密的明文：");
         String plainText;
         boolean legal = false;
         do {
@@ -47,13 +51,16 @@ public class AESCipher {
         cur = 0;
         System.out.println("\n请输入keyLength: 128");
         keyLength = 128;    // 本例仅实现128位密钥
-        col = keyLength / 8 / row;
+        int groupLength = keyLength / 8;
+        col = groupLength / row;
         extendKey = false;
         initKey(keyLength);
         String plainText = plaintextInput();
-        Text = plainText.getBytes();
         System.out.printf("明文字符数: %d\n", plainText.length());
-        length = Text.length;
+        textBytes = plainText.getBytes();
+        length = textBytes.length;
+        if (length / groupLength != 0) cipherLength = (length / groupLength + 1) * groupLength;
+        else cipherLength = length / groupLength * groupLength;
         System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), length);
         cipherBytes = null;
     }
@@ -136,29 +143,36 @@ public class AESCipher {
 
 
     public byte[][] nextGroupBytes() { // 获取按列分组的字节组，本实例其实规模是4*4的byte数组
-        int remain = length - 1 - cur;  // cur是下标，从0开始，length是长度
-        byte[][] subBytes;
-        if (remain >= keyLength) {  //剩下的待加密内容长度足够，即 >= 分组长度（密钥长度）
-            subBytes = new byte[row][col];
-            for (int j = 0; j < col; j++) {
-                for (int i = 0; i < row; i++) {
-                    subBytes[i][j] = Text[cur++];
-                }
+//        int remain = length - 1 - cur;  // cur是下标，从0开始，length是长度
+        if (cur >= length) return null;
+        byte[][] subBytes = new byte[row][col];
+        for (int j = 0; j < col && cur < length; j++) {
+            for (int i = 0; i < row && cur < length; i++) {
+                subBytes[i][j] = textBytes[cur++];
             }
-        } else if (remain > 0) {    //剩下的待加密内容 < 所需的分组长度（密钥长度），采取了补0
-            subBytes = new byte[row][col];
-            for (int j = 0; j < col; j++) {
-                for (int i = 0; i < row; i++) {
-                    if (cur < length) {  //此处应该等价于if(remain > 0)
-                        subBytes[i][j] = Text[cur++];
-                    } else {
-                        subBytes[i][j] = (byte) 0;
-                    }
-                }
-            }
-            return subBytes;
         }
-        return null; //明文取完了，就返回null
+        return subBytes;
+//        if (remain >= keyLength) {  //剩下的待加密内容长度足够，即 >= 分组长度（密钥长度）
+//            for (int j = 0; j < col; j++) {
+//                for (int i = 0; i < row; i++) {
+//                    subBytes[i][j] = textBytes[cur++];
+//                }
+//            }
+//        }
+//        else if (remain > 0) {    //剩下的待加密内容 < 所需的分组长度（密钥长度），采取了补0
+//            for (int j = 0; j < col; j++) {
+//                for (int i = 0; i < row; i++) {
+//                    if (cur < length) {  //此处应该等价于if(remain > 0)
+//                        subBytes[i][j] = textBytes[cur++];
+//                    }
+//                    else {
+//                        subBytes[i][j] = 0;
+//                    }
+//                }
+//            }
+//            return subBytes;
+//        }
+//        return null; //明文取完了，就返回null
     }
 
     public static byte substituteByte(byte b, boolean reverse) { //字节替换
@@ -226,8 +240,8 @@ public class AESCipher {
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < set_col; j++) {
                 for (int k = 0; k < mixCol[0].length; k++) {
-//                    mixedBytes[i][j] ^= GF28multiple(mixCol[i][k], byteToInt(bytes[k][j])); // 参与运算不应该这样转int
-                    mixedBytes[i][j] ^= GF28multiple(mixCol[i][k], bytes[k][j]);
+                    mixedBytes[i][j] ^= GF28multiple(mixCol[i][k], byteToInt(bytes[k][j])); // 参与运算不应该这样转int ????
+//                    mixedBytes[i][j] ^= GF28multiple(mixCol[i][k], bytes[k][j]);
                 }
             }
         }
@@ -264,9 +278,9 @@ public class AESCipher {
     }
 
     public void addRoundKey(byte[][] bytes, int round) {
-        for (int j = round * 4; j < round + 4; j++) {
+        for (int j = 0, k = round * 4; k < round + 4; j++, k++) {
             for (int i = 0; i < row; i++) {
-                bytes[i][j] ^= key[i][j];
+                bytes[i][j] ^= key[i][k];
             }
         }
     }
@@ -279,8 +293,8 @@ public class AESCipher {
         byte[][] state;
         int count = 0;
         int round = 0;
-        int keyByteLength = keyLength / 8;
-        cipherBytes = new byte[Text.length / keyByteLength + Text.length % keyByteLength];
+
+        cipherBytes = new byte[cipherLength];
         // 先来了10轮的密钥扩展
         if (!extendKey) extendKey();
         while (true) { // encryption
@@ -289,14 +303,19 @@ public class AESCipher {
             if (state == null) break;
             addRoundKey(state, round);
             for (round = 1; round <= 9; round++) { // round为轮数，前9轮有mixColumns
+                System.out.printf("第 %d 轮\n", round);
                 for (int i = 0; i < row; i++) {
                     for (int j = 0; j < col; j++) {
                         state[i][j] = substituteByte(state[i][j], false);
                     }
-                } // end substituteByte
+                }   // end substituteByte
+//                System.out.println("end substituteByte");
                 shiftRows(state);   // end shiftRows
+//                System.out.println("end shiftRows");
                 state = mixColumns(state, false); // end mixColumns
+//                System.out.println("end mixColumns");
                 addRoundKey(state, round); // end addRoundKey
+//                System.out.println("end addRoundKey");
             } // end 9 rounds
             // 10th round here, without mixColumns
             for (int i = 0; i < row; i++) {
@@ -304,14 +323,20 @@ public class AESCipher {
                     state[i][j] = substituteByte(state[i][j], false);
                 }
             } // end substituteByte
+//            System.out.println("end substituteByte");
             shiftRows(state);   // end shiftRows
+//            System.out.println("end shiftRows");
             addRoundKey(state, round); // end addRoundKey, end 10th round
-            for (int i = 0; i < row; i++) { // store the ciphered bytes
-                for (int j = 0; j < col; j++) {
+            System.out.printf("第 %d 轮 end\n", round);
+//            System.out.println("end addRoundKey");
+            for (int j = 0; j < col; j++) { // store the ciphered bytes
+                for (int i = 0; i < row; i++) {
                     cipherBytes[count++] = state[i][j];
                 }
             } // end store
+//            System.out.println("end store");
         } // end encryption
+//        System.out.println("end encryption");
     }
 
 
