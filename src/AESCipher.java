@@ -1,6 +1,7 @@
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Scanner;
 
 public class AESCipher {
@@ -27,12 +28,14 @@ public class AESCipher {
         extendKey = false;
         initKey(keyLen);
         System.out.printf("明文字符数: %d\n", plainText.length());
-        textBytes = plainText.getBytes();
+//        textBytes = plainText.getBytes();
+        textBytes = Base64.getEncoder().encode(plainText.getBytes());
         length = textBytes.length;
         if (length % groupLength != 0) cipherLength = (length / groupLength + 1) * groupLength;
         else cipherLength = length / groupLength * groupLength;
-        System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), length);
-        System.out.printf("补0后长度: %d字节\n", cipherLength);
+//        System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), length);
+        System.out.printf("默认是%s编码, 对应base64字节数: %d\n", System.getProperty("file.encoding"), length);
+        System.out.printf("补a后长度: %d字节\n", cipherLength);
 
     }
 
