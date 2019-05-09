@@ -28,13 +28,13 @@ public class AESCipher {
         extendKey = false;
         initKey(keyLen);
         System.out.printf("明文字符数: %d\n", plainText.length());
-//        textBytes = plainText.getBytes();
-        textBytes = Base64.getEncoder().encode(plainText.getBytes());
+        textBytes = plainText.getBytes();
+//        textBytes = Base64.getEncoder().encode(plainText.getBytes());
         length = textBytes.length;
         if (length % groupLength != 0) cipherLength = (length / groupLength + 1) * groupLength;
         else cipherLength = length / groupLength * groupLength;
-//        System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), length);
-        System.out.printf("默认是%s编码, 对应base64字节数: %d\n", System.getProperty("file.encoding"), length);
+        System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), length);
+//        System.out.printf("默认是%s编码, 对应base64字节数: %d\n", System.getProperty("file.encoding"), length);
         System.out.printf("补a后长度: %d字节\n", cipherLength);
 
     }
@@ -150,7 +150,7 @@ public class AESCipher {
     }
 
 
-    public byte[][] nextGroupBytes(boolean reverse) { // 获取按列分组的字节组，本实例其实规模是4*4的byte数组
+    public static byte[][] nextGroupBytes(boolean reverse) { // 获取按列分组的字节组，本实例其实规模是4*4的byte数组
         int maxLen = reverse ? cipherLength : length;
         byte[] bytes = reverse ? cipherBytes : textBytes;
         if (cur >= maxLen) return null;
@@ -298,7 +298,8 @@ public class AESCipher {
         return mixedBytes;
     }
 
-    public void extendKey() {
+    public static void extendKey(byte[][] key) {
+        System.out.println("------------extendKey-------------");
         int round = 0;
         byte[] w_j_1 = new byte[row];
         byte[] w_j_4 = new byte[row];
@@ -317,7 +318,8 @@ public class AESCipher {
                 for (int i = 1, count = 0; count < row; i = (i + 1) % row, count++) {
                     w_j_4[count] = key[count][j - 4];    // 这样一来此处不变
                     // 而下方 w_j_1 即代表 w[j-1] 就是左循环移位1次并且字节代换后，而且与轮常量异或后的了
-                    w_j_1[count] = (byte) (substituteByte(key[i][j - 1], false) ^ AESParam.Rcon[round]);
+                    w_j_1[count] = substituteByte(key[i][j - 1], false);
+                    w_j_1[count] = (byte) (w_j_1[count] ^ AESParam.Rcon[round][count]);
                     w_j[count] = (byte) (w_j_4[count] ^ w_j_1[count]);
                     key[count][j] = w_j[count]; //填入总密钥
                 }
@@ -325,10 +327,17 @@ public class AESCipher {
             }
         } // end for / 结束轮密钥加
         extendKey = true;
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < keyCol; j++) {
+                System.out.printf("%02x  ", key[i][j]);
+            }
+            System.out.println();
+        }
     }
 
     public void addRoundKey(byte[][] bytes, int round) {
-        for (int j = 0, k = round * 4; k < round + 4; j++, k++) {
+        System.out.printf("w[%d] ---- w[%d]\n", round * 4, round * 4 + 4 - 1);
+        for (int j = 0, k = round * 4; k < round * 4 + 4; j++, k++) {
             for (int i = 0; i < row; i++) {
                 bytes[i][j] = (byte) (bytes[i][j] ^ key[i][k]);
             }
@@ -346,7 +355,7 @@ public class AESCipher {
 
         cipherBytes = new byte[cipherLength];
         // 先来了10轮的密钥扩展
-        if (!extendKey) extendKey();
+        if (!extendKey) extendKey(key);
         while (true) { // encryption
             round = 0;
             state = nextGroupBytes(false);
@@ -380,31 +389,38 @@ public class AESCipher {
         int round = 0;
         int count = 0;
         byte[][] state;
-        cur = cipherLength - 16;
-        decipherBytes = new byte[cipherLength];
-        while (true) { // decryption
+        cur = 0;
+        decipherBytes = new byte[length];
+        while (count < length) { // decryption
             round = 0;
             state = nextGroupBytes(true);
             if (state == null) break;
             addRoundKey(state, round);
-//            shiftRows(state, true); //书上
-//            subBytes(state, true);  //书上
+            shiftRows(state, true); //书上
+            subBytes(state, true);  //书上
+            for (round = 9; round > 0; round--) {  //书上
+                addRoundKey(state, round);  //书上
+                mixColumns(state, true);    //书上
+                shiftRows(state, true); //书上
+                subBytes(state, true);  //书上
+            }   //书上
+            addRoundKey(state, 10); //书上
 
-            for (round = 10; round > 0; round--) {
-//            for (round = 1; round <= 10; round++) {
-                shiftRows(state, true);
-                subBytes(state, true);  // end De-substituteByte
-//                System.out.println("end de-substituteByte");
-                addRoundKey(state, round);  // end De-addRoundKey
-//                System.out.println("end De-addRoundKey");
-                if (round > 1) {
-                    mixColumns(state, true); // end De-mixColumns
-//                    System.out.println("end De-mixColumns");
-                }
-//                if (round < 10) mixColumns(state, true); // end De-mixColumns
-            }
-            for (int j = 0; j < col; j++) { // store the deciphered bytes
-                for (int i = 0; i < row; i++) {
+//            for (round = 10; round > 0; round--) {
+////            for (round = 1; round <= 10; round++) {
+//                shiftRows(state, true);
+//                subBytes(state, true);  // end De-substituteByte
+////                System.out.println("end de-substituteByte");
+//                addRoundKey(state, round);  // end De-addRoundKey
+////                System.out.println("end De-addRoundKey");
+//                if (round > 1) {
+////                if (round < 10) {
+//                    mixColumns(state, true); // end De-mixColumns
+////                    System.out.println("end De-mixColumns");
+//                }
+//            }
+            for (int j = 0; j < col && count < length; j++) { // store the deciphered bytes
+                for (int i = 0; i < row && count < length; i++) {
                     decipherBytes[count++] = state[i][j];
                 }
             } // end store
