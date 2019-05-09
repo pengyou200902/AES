@@ -4,37 +4,105 @@ import java.util.Base64;
 //wwwasdhkdakfdvbs,mvdkvjlkdsvsklwje ?abcdefghijkl //48
 // abcdefg。
 public class testCipher {
+    public static Base64.Decoder decoder = Base64.getDecoder();
+    public static Base64.Encoder encoder = Base64.getEncoder();
 
     public static AESCipher menu() {
         String plainText = AESCipher.plaintextInput();
         return new AESCipher(plainText, 128); // 本实例针对128位
     }
 
+    public static void test() throws UnsupportedEncodingException {
+        byte[] plain = {(byte) 0x32, (byte) 0x43, (byte) 0xf6, (byte) 0xa8,
+                (byte) 0x88, (byte) 0x5a, (byte) 0x30,
+                (byte) 0x8d, (byte) 0x31, (byte) 0x31,
+                (byte) 0x98, (byte) 0xa2, (byte) 0xe0,
+                (byte) 0x37, (byte) 0x07, (byte) 0x34
+        };
+        System.out.println("输入（未补a）：" + encoder.encodeToString(plain));
+//        测试extendKey--------------------
+        byte[][] initKey = {    //已经按列排
+                {(byte) 0x2b, (byte) 0x28, (byte) 0xab, (byte) 0x09},
+                {(byte) 0x7e, (byte) 0xae, (byte) 0xf7, (byte) 0xcf},
+                {(byte) 0x15, (byte) 0xd2, (byte) 0x15, (byte) 0x4f},
+                {(byte) 0x16, (byte) 0xa6, (byte) 0x88, (byte) 0x3c}
+        };
+        byte[][] key = new byte[4][44];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                key[i][j] = initKey[i][j];
+            }
+        }
+        AESCipher.extendKey(key);
+//        测试extendKey--------------------
+        AESCipher aesCipher = new AESCipher(plain, key);
+        aesCipher.addRoundKey(aesCipher.nextGroupBytes(plain, 0), key, 0);
+    }
+
     public static void main(String[] args) throws UnsupportedEncodingException {
 
-        AESCipher aesCipher = menu();
+        //test
+        test();
+        //test
+
+//        AESCipher aesCipher = menu();
 //        System.out.println(new String(aesCipher.textBytes));
+////        System.out.println(encoder.encodeToString(aesCipher.textBytes));
+////        System.out.println(encoder.encodeToString(aesCipher.textBytes).length());
+////
+//        System.out.println("encrypt");
+//        aesCipher.encrypt();
+////        String cipherText = new String(aesCipher.cipherBytes, "UTF-8");
+//        String cipherText = new String(encoder.encodeToString(aesCipher.cipherBytes));
+////        String cipherText = new String(aesCipher.cipherBytes);
+//        System.out.println("加密后：");
+//        System.out.println(cipherText);
+//        System.out.println(cipherText.length());
+////        System.out.printf("加密后为: %s\nlength=%d\n", cipherText, cipherText.length());
+//        System.out.println(new String(decoder.decode(cipherText)));
+////
+//        System.out.println("dddecrypt");
+//        aesCipher.decrypt();
 //
-        aesCipher.encrypt();
-        String cipherText = new String(aesCipher.cipherBytes, "UTF-8");
-//        Base64.Decoder decoder = Base64.getDecoder();
-//        String cipherText = new String(decoder.decode(aesCipher.cipherBytes), "UTF-8");
-//        String cipherText = new String(aesCipher.cipherBytes);
-        System.out.println("加密后：");
-        System.out.println(cipherText);
-        System.out.println(cipherText.length());
-//        System.out.printf("加密后为: %s\nlength=%d", cipherText, cipherText.length());
-//
-        aesCipher.decrypt();
+////        String plainText = new String(aesCipher.decipherBytes, "UTF-8");
+//        String plainText = encoder.encodeToString(aesCipher.decipherBytes);
+////        String plainText = new String(aesCipher.decipherBytes);
+//        System.out.println("解密后：");
+//        System.out.println(plainText);
+//        System.out.println(plainText.length());
+////        System.out.printf("解密后为: %s\nlength=%d", plainText, plainText.length());
+//        System.out.println(new String(decoder.decode(plainText)));
 
-        String plainText = new String(aesCipher.decipherBytes, "UTF-8");
 
-//        String plainText = new String(decoder.decode(aesCipher.decipherBytes), "UTF-8");
-//        String plainText = new String(aesCipher.decipherBytes);
-        System.out.println("解密后：");
-        System.out.println(plainText);
-        System.out.println(plainText.length());
-//        System.out.printf("解密后为: %s\nlength=%d", plainText, plainText.length());
+//        测试mixColumns
+//        byte[][] a = {
+//                {(byte) 0xd4},
+//                {(byte) 0xbf},
+//                {(byte) 0x5d},
+//                {(byte) 0x30}
+//        };
+//        int[][] a = {
+//                {0xd4},
+//                {0xbf},
+//                {0x5d},
+//                {0x30}
+//        };
+//        a = AESCipher.mixColumns(a, false);
+//        for (int i = 0; i < 4; i++) {
+//            for (int j = 0; j < 1; j++) {
+////                System.out.printf("%02x  ", AESCipher.byteToInt(a[i][j]));
+//                System.out.printf("%02x  ", a[i][j]);
+//            }
+//            System.out.println();
+//        }
+//        System.out.printf("%2x\n", AESCipher.GF28multiple(1,0xd4) ^AESCipher.GF28multiple(1,0xbf)
+//                                ^ AESCipher.GF28multiple(2,0x5d) ^ AESCipher.GF28multiple(3,0x30));
+//        System.out.printf("%2x\n", AESCipher.GF28multiple(3,0xd4) ^AESCipher.GF28multiple(1,0xbf)
+//                                ^ AESCipher.GF28multiple(1,0x5d) ^ AESCipher.GF28multiple(2,0x30));
+//        System.out.printf("%02x  ", AESCipher.GF28multiple(1,0xd4));
+//        System.out.printf("%02x  ", AESCipher.GF28multiple(1,0xbf));
+//        System.out.printf("%02x  ", AESCipher.GF28multiple(2,0x5d));
+//        System.out.printf("%02x  ", AESCipher.GF28multiple(3,0x30));
 
 //        byte[] a = {1,2,3,4};
 //        byte[] b = {5,6,7,8};
