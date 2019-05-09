@@ -111,7 +111,7 @@ public class AESCipher {
     }
 
     public static int byteToInt(byte a) {
-        int x = a >= 0 ? a : a + 256;
+        int x = (a >= 0 ? a : a + 256);
         return x;
     }
 
@@ -200,6 +200,7 @@ public class AESCipher {
             }
         }
 //        System.out.printf("cur=%d, end next\n", cur);
+        cur = begin;
         return subBytes;
     }
 
@@ -234,6 +235,8 @@ public class AESCipher {
                 bytes[i][j] = substituteByte(bytes[i][j], reverse);
             }
         }
+//        System.out.println("字节代换后：");
+//        out(bytes, -1, -1);
     }
 
     public void shiftRows(byte[][] bytes, boolean reverse) { //行移位，数组为引用传递，故使用void
@@ -251,6 +254,8 @@ public class AESCipher {
                     leftLoopMove(bytes[i], r - i);
                 }
             }
+//            System.out.println("行移位后：");
+//            out(bytes, row, col);
         } else {
             System.out.println("Unknown Error!");
         }
@@ -258,29 +263,30 @@ public class AESCipher {
 
     // GF(2^8)乘法
     public static int GF28multiple(int a, int b) {
-        if (a == 0 || b == 0) return 0;
-        if (a == 1) return b;
-        if (b == 1) return a;
-
-        int count = 0;
+        int aa = a, bb = b;
         int result = 0;
-        int bit = 0;
+        if (a == 0 || b == 0) result = 0;
+        else if (a == 1) result = b;
+        else if (b == 1) result = a;
+        else {
+//            int count = 0;
+//            int bit = 0;
 //        a &= 0b11111111;
 //        b &= 0b11111111;
 //        result ^= (a * bit);
 //        b ^= bit;
 //        System.out.println("gf28 while");
-        for (int i = 0; i < 8; ++i) {
-            if ((a & 1) == 1) {
-                result ^= b;
+            for (int i = 0; i < 8; ++i) {
+                if ((a & 1) == 1) {
+                    result ^= b;
+                }
+                int flag = (b & 0b100000000);
+                b <<= 1;
+                if (flag == 1) {
+                    b ^= 0x1B; /* x^8 + x^4 + x^3 + x + 1 */
+                }
+                a >>= 1;
             }
-            int flag = (b & 0b100000000);
-            b <<= 1;
-            if (flag == 1) {
-                b ^= 0x1B; /* x^8 + x^4 + x^3 + x + 1 */
-            }
-            a >>= 1;
-        }
 
 //        while (b != 0) {
 //            System.out.printf("b=%d\n", b);
@@ -311,7 +317,10 @@ public class AESCipher {
 //            }
 //            result &= 0b11111111;
 //        }
-        return (result & 0b11111111);
+        }
+        result &= 0b11111111;
+        System.out.printf("%02x X %02x = %02x\n", aa, bb, result);
+        return result;
     }
 
 
@@ -330,24 +339,35 @@ public class AESCipher {
             mixCol = AESParam._mixCol;
         } else mixCol = AESParam.mixCol;
         //矩阵GF(2^8)乘法
+//        StringBuffer sb ;
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < set_col; j++) {
 //                mixedBytes[i][j] = (byte) (GF28multiple(mixCol[i][0], byteToInt(bytes[0][i]))
 //                                        ^ GF28multiple(mixCol[i][1], byteToInt(bytes[1][i]))
 //                                        ^ GF28multiple(mixCol[i][2], byteToInt(bytes[2][i]))
 //                                        ^ GF28multiple(mixCol[i][3], byteToInt(bytes[3][i])));
+//                sb = new StringBuffer();
+//                mixedBytes[i][j] = (byte) (GF28multiple(mixCol[i][0],byteToInt( bytes[0][j]))
+//                                        ^ GF28multiple(mixCol[i][1], byteToInt(bytes[1][j]))
+//                                        ^ GF28multiple(mixCol[i][2], byteToInt(bytes[2][j]))
+//                                        ^ GF28multiple(mixCol[i][3], byteToInt(bytes[3][j])));
                 for (int k = 0; k < mixCol[0].length; k++) {
-                    mixedBytes[i][j] ^= GF28multiple(mixCol[i][k], byteToInt(bytes[k][j])); // 参与运算应该这样转int ????
+//                    mixedBytes[i][j] = (byte) (mixedBytes[i][j] ^ GF28multiple(mixCol[i][k], byteToInt(bytes[k][j]))); // 参与运算应该这样转int ????
 //                    mixedBytes[i][j] ^= GF28multiple(mixCol[i][k], bytes[k][j]);
+                    mixedBytes[i][j] ^= GFMul(mixCol[i][k], bytes[k][j]); // 这就对了。。。
+//                    int a = GF28multiple(mixCol[i][k], byteToInt(bytes[k][j]));
+//                    sb.append(a).append('^');
+//                    mixedBytes[i][j] ^= a; // 参与运算应该这样转int ????
                 }
+//                System.out.println(sb.append('=').append(mixedBytes[i][j]));
             }
         }
-
+//        System.out.println("列混淆后：");
+//        out(mixedBytes, -1, -1);
         return mixedBytes;
     }
 
     public static void extendKey(byte[][] key) {
-        System.out.println("------------extendKey-------------");
         int round = 0;
         byte[] w_j_1 = new byte[row];
         byte[] w_j_4 = new byte[row];
@@ -376,7 +396,8 @@ public class AESCipher {
         } // end for / 结束轮密钥加
         extendKey = true;
         //输出全密钥
-        out(key, row, keyCol);
+        System.out.println("------------extendKey-------------");
+        out(key, -1, -1);
     }
 
     public static void addRoundKey(byte[][] bytes, byte[][] key, int round) {
@@ -387,8 +408,8 @@ public class AESCipher {
             }
         }
         //输出结果
-        System.out.printf("第 %d 轮密钥加结果：\n", round);
-        out(bytes, row, col);
+//        System.out.printf("第 %d 轮密钥加结果：\n", round);
+//        out(bytes, -1, -1);
     }
 
     public void encrypt() {
@@ -474,4 +495,72 @@ public class AESCipher {
         }
     }
 
+    public static int GFMul2(int s) {
+        int result = s << 1;
+        int a7 = result & 0x00000100;
+
+        if (a7 != 0) {
+            result = result & 0x000000ff;
+            result = result ^ 0x1b;
+        }
+
+        return result;
+    }
+
+    public static int GFMul3(int s) {
+        return GFMul2(s) ^ s;
+    }
+
+    public static int GFMul4(int s) {
+        return GFMul2(GFMul2(s));
+    }
+
+    public static int GFMul8(int s) {
+        return GFMul2(GFMul4(s));
+    }
+
+    public static int GFMul9(int s) {
+        return GFMul8(s) ^ s;
+    }
+
+    public static int GFMul11(int s) {
+        return GFMul9(s) ^ GFMul2(s);
+    }
+
+    public static int GFMul12(int s) {
+        return GFMul8(s) ^ GFMul4(s);
+    }
+
+    public static int GFMul13(int s) {
+        return GFMul12(s) ^ s;
+    }
+
+    public static int GFMul14(int s) {
+        return GFMul12(s) ^ GFMul2(s);
+    }
+
+    /**
+     * GF上的二元运算
+     */
+    public static int GFMul(int n, int s) {
+        int result = 0;
+
+        if (n == 1)
+            result = s;
+        else if (n == 2)
+            result = GFMul2(s);
+        else if (n == 3)
+            result = GFMul3(s);
+        else if (n == 0x9)
+            result = GFMul9(s);
+        else if (n == 0xb)//11
+            result = GFMul11(s);
+        else if (n == 0xd)//13
+            result = GFMul13(s);
+        else if (n == 0xe)//14
+            result = GFMul14(s);
+
+        return result;
+    }
+    
 }
