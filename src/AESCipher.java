@@ -464,29 +464,33 @@ public class AESCipher {
             state = nextGroupBytes(cipherBytes, cur);
             if (state == null) break;
             addRoundKey(state, key, round);
-            shiftRows(state, true); //书上
-            subBytes(state, true);  //书上
-            for (round = 9; round > 0; round--) {  //书上
-                addRoundKey(state, key, round);  //书上
-                mixColumns(state, true);    //书上
-                shiftRows(state, true); //书上
-                subBytes(state, true);  //书上
-            }   //书上
-            addRoundKey(state, key, 10); //书上
+//            shiftRows(state, true); //书上
+//            subBytes(state, true);  //书上
+//            for (round = 9; round > 0; round--) {  //书上
+//                addRoundKey(state, key, round);  //书上
+//                mixColumns(state, true);    //书上
+//                shiftRows(state, true); //书上
+//                subBytes(state, true);  //书上
+//            }   //书上
+//            addRoundKey(state, key, 10); //书上
 
-//            for (round = 10; round > 0; round--) {
-////            for (round = 1; round <= 10; round++) {
-//                shiftRows(state, true);
-//                subBytes(state, true);  // end De-substituteByte
+            for (round = 10; round > 0; round--) {
+//            for (round = 1; round <= 10; round++) {
+                shiftRows(state, true);
+                subBytes(state, true);  // end De-substituteByte
+//                System.out.println("end de-substituteByte");
+                addRoundKey(state, key, round);  // end De-addRoundKey
+//                System.out.println("end De-addRoundKey");
+                if (round > 1) {
+//                if (round < 10) {
+                    mixColumns(state, true); // end De-mixColumns
+//                    System.out.println("end De-mixColumns");
+                }
+            }
+//            subBytes(state, true);  // end De-substituteByte
 ////                System.out.println("end de-substituteByte");
-//                addRoundKey(state, key, round);  // end De-addRoundKey
-////                System.out.println("end De-addRoundKey");
-//                if (round > 1) {
-////                if (round < 10) {
-//                    mixColumns(state, true); // end De-mixColumns
-////                    System.out.println("end De-mixColumns");
-//                }
-//            }
+//            shiftRows(state, true);
+//            addRoundKey(state, key, round);  // end De-addRoundKey
             for (int j = 0; j < col && count < length; j++) { // store the deciphered bytes
                 for (int i = 0; i < row && count < length; i++) {
                     decipherBytes[count++] = state[i][j];
