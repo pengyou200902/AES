@@ -1,7 +1,7 @@
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Scanner;
 
 public class AESCipher {
@@ -16,7 +16,18 @@ public class AESCipher {
     public static int cur = 0;  //取明文的字节分组时所用的下标
     public static int col = 4;  //每组的列数不是final，因为密钥长度不同，列也会不同，但其实本例只实现了128位密钥的，故col其实是4
     public static boolean extendKey = false;
+    public static byte a;
+
+    static {
+        try {
+            a = "a".getBytes(System.getProperty("file.encoding"))[0];
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
     public final static int row = 4;    //但是行数是确定4行
+
     private static Scanner sc = new Scanner(System.in);
 
     public AESCipher(String plainText, int keyLen) {
@@ -24,7 +35,7 @@ public class AESCipher {
         keyLength = keyLen;
         int groupLength = keyLength / 8;
         col = groupLength / row;
-        System.out.printf(" col = %d\n", col);
+//        System.out.printf(" col = %d\n", col);
         extendKey = false;
         initKey(keyLen);
         System.out.printf("明文字符数: %d\n", plainText.length());
@@ -37,6 +48,20 @@ public class AESCipher {
 //        System.out.printf("默认是%s编码, 对应base64字节数: %d\n", System.getProperty("file.encoding"), length);
         System.out.printf("补a后长度: %d字节\n", cipherLength);
 
+    }
+
+    public AESCipher(byte[] plain, byte[][] key) {
+        extendKey = true;
+        cur = 0;
+        keyLength = 128;
+        int groupLength = keyLength / 8;
+        col = groupLength / row;
+        textBytes = plain;
+        length = textBytes.length;
+        if (length % groupLength != 0) cipherLength = (length / groupLength + 1) * groupLength;
+        else cipherLength = length / groupLength * groupLength;
+        System.out.printf("明文字节数: %d\n", length);
+        System.out.printf("补'a'后长度: %d字节\n", cipherLength);
     }
 
     public static String plaintextInput() {
@@ -71,6 +96,18 @@ public class AESCipher {
         System.out.printf("默认是%s编码, 对应字节数: %d\n", System.getProperty("file.encoding"), length);
         System.out.printf("补0后长度: %d\n", cipherLength);
         cipherBytes = null;
+    }
+
+    public static void out(byte[][] bytes, int x, int y) {
+        x = (x <= bytes.length && x > -1) ? x : bytes.length;
+        y = (y <= bytes[0].length && y > -1) ? y : bytes[0].length;
+
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; j < y; j++) {
+                System.out.printf("%02x  ", bytes[i][j]);
+            }
+            System.out.println();
+        }
     }
 
     public static int byteToInt(byte a) {
@@ -150,22 +187,33 @@ public class AESCipher {
     }
 
 
-    public static byte[][] nextGroupBytes(boolean reverse) { // 获取按列分组的字节组，本实例其实规模是4*4的byte数组
-        int maxLen = reverse ? cipherLength : length;
-        byte[] bytes = reverse ? cipherBytes : textBytes;
-        if (cur >= maxLen) return null;
-        byte a = "a".getBytes()[0];
+    public static byte[][] nextGroupBytes(byte[] bytes, int begin) { // 获取按列分组的字节组，本实例其实规模是4*4的byte数组
+        int maxLen = bytes.length;
+        if (begin >= maxLen) return null;
+
         byte[][] subBytes = new byte[row][col];
 
         for (int j = 0; j < col; j++) {
             for (int i = 0; i < row; i++) {
-                if (cur < maxLen) subBytes[i][j] = bytes[cur++];
+                if (begin < maxLen) subBytes[i][j] = bytes[begin++];
                 else subBytes[i][j] = a; //补a
             }
         }
 //        System.out.printf("cur=%d, end next\n", cur);
         return subBytes;
     }
+
+//    public static byte[][] nextGroupBytes(byte[] in) { // 获取按列分组的字节组，本实例其实规模是4*4的byte数组
+//        byte[][] subBytes = new byte[row][col];
+//
+//        for (int j = 0; j < col; j++) {
+//            for (int i = 0; i < row; i++) {
+//                if (cur < maxLen) subBytes[i][j] = bytes[cur++];
+//                else subBytes[i][j] = a; //补a
+//            }
+//        }
+//        return in;
+//    }
 
     public static byte substituteByte(byte b, boolean reverse) { //字节替换
         int low_4 = b & 0b1111;
@@ -327,21 +375,20 @@ public class AESCipher {
             }
         } // end for / 结束轮密钥加
         extendKey = true;
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < keyCol; j++) {
-                System.out.printf("%02x  ", key[i][j]);
-            }
-            System.out.println();
-        }
+        //输出全密钥
+        out(key, row, keyCol);
     }
 
-    public void addRoundKey(byte[][] bytes, int round) {
-        System.out.printf("w[%d] ---- w[%d]\n", round * 4, round * 4 + 4 - 1);
+    public static void addRoundKey(byte[][] bytes, byte[][] key, int round) {
+//        System.out.printf("w[%d] ---- w[%d]\n", round * 4, round * 4 + 4 - 1);
         for (int j = 0, k = round * 4; k < round * 4 + 4; j++, k++) {
             for (int i = 0; i < row; i++) {
                 bytes[i][j] = (byte) (bytes[i][j] ^ key[i][k]);
             }
         }
+        //输出结果
+        System.out.printf("第 %d 轮密钥加结果：\n", round);
+        out(bytes, row, col);
     }
 
     public void encrypt() {
@@ -358,10 +405,10 @@ public class AESCipher {
         if (!extendKey) extendKey(key);
         while (true) { // encryption
             round = 0;
-            state = nextGroupBytes(false);
+            state = nextGroupBytes(textBytes, cur);
             if (state == null) break;
 
-            addRoundKey(state, round);
+            addRoundKey(state, key, round);
             for (round = 1; round <= 10; round++) { // round为轮数，前9轮有mixColumns
 //                System.out.printf("第 %d 轮\n", round);
                 subBytes(state, false); // end substituteByte
@@ -372,7 +419,7 @@ public class AESCipher {
                     state = mixColumns(state, false); // end mixColumns
 //                    System.out.println("end mixColumns");
                 }
-                addRoundKey(state, round); // end addRoundKey
+                addRoundKey(state, key, round); // end addRoundKey
 //                System.out.println("end addRoundKey");
             } // end 10 rounds
             for (int j = 0; j < col; j++) { // store the ciphered bytes
@@ -393,25 +440,25 @@ public class AESCipher {
         decipherBytes = new byte[length];
         while (count < length) { // decryption
             round = 0;
-            state = nextGroupBytes(true);
+            state = nextGroupBytes(cipherBytes, cur);
             if (state == null) break;
-            addRoundKey(state, round);
+            addRoundKey(state, key, round);
             shiftRows(state, true); //书上
             subBytes(state, true);  //书上
             for (round = 9; round > 0; round--) {  //书上
-                addRoundKey(state, round);  //书上
+                addRoundKey(state, key, round);  //书上
                 mixColumns(state, true);    //书上
                 shiftRows(state, true); //书上
                 subBytes(state, true);  //书上
             }   //书上
-            addRoundKey(state, 10); //书上
+            addRoundKey(state, key, 10); //书上
 
 //            for (round = 10; round > 0; round--) {
 ////            for (round = 1; round <= 10; round++) {
 //                shiftRows(state, true);
 //                subBytes(state, true);  // end De-substituteByte
 ////                System.out.println("end de-substituteByte");
-//                addRoundKey(state, round);  // end De-addRoundKey
+//                addRoundKey(state, key, round);  // end De-addRoundKey
 ////                System.out.println("end De-addRoundKey");
 //                if (round > 1) {
 ////                if (round < 10) {
