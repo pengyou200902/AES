@@ -33,51 +33,56 @@ public class testCipher {
                 key[i][j] = initKey[i][j];
             }
         }
-        AESCipher.extendKey(key);
+//        AESCipher.extendKey(key);
 //        测试extendKey--------------------
         AESCipher aesCipher = new AESCipher(plain, key);
-        byte[][] state = aesCipher.nextGroupBytes(plain, 0);
-        aesCipher.addRoundKey(state, key, 0);
-        aesCipher.subBytes(state, false);
-        aesCipher.shiftRows(state, false);
-        aesCipher.mixColumns(state, false);
+        byte[][] state = AESCipher.nextGroupBytes(plain, 4, 4, 0);
+//        AESCipher.addRoundKey(state, key, 0);
+//        AESCipher.subBytes(state, false);
+//        AESCipher.shiftRows(state, false);
+//        AESCipher.mixColumns(state, false);
+        byte[] cipherBytes = AESCipher.encrypt(plain, key, 16);
+        byte[] decipherBytes = AESCipher.decrypt(plain, key);
+        System.out.println("原文：" + encoder.encodeToString(plain));
+        System.out.println("密文：" + encoder.encodeToString(cipherBytes));
+        System.out.println("解密：" + encoder.encodeToString(decipherBytes));
 
     }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
         //test
-//        test();
+        test();
         //test
 //        System.out.println(AESCipher.GF28multiple(2,212));
 //        System.out.println(AESCipher.GF28multiple(2,-44));
 
-        AESCipher aesCipher = menu();
-//        System.out.println(new String(aesCipher.textBytes));
-        System.out.println(encoder.encodeToString(aesCipher.textBytes));
-//        System.out.println(encoder.encodeToString(aesCipher.textBytes).length());
+//        AESCipher aesCipher = menu();
+////        System.out.println(new String(aesCipher.textBytes));
+//        System.out.println(encoder.encodeToString(aesCipher.textBytes));
+////        System.out.println(encoder.encodeToString(aesCipher.textBytes).length());
+////
+//        System.out.println("encrypt");
+//        aesCipher.encrypt();
+////        String cipherText = new String(aesCipher.cipherBytes, "UTF-8");
+//        String cipherText = encoder.encodeToString(aesCipher.cipherBytes);
+////        String cipherText = new String(aesCipher.cipherBytes);
+//        System.out.println("加密后：");
+//        System.out.println(cipherText);
+//        System.out.println(cipherText.length());
+////        System.out.printf("加密后为: %s\nlength=%d\n", cipherText, cipherText.length());
+//        System.out.println(new String(decoder.decode(cipherText)));
+////
+//        System.out.println("dddecrypt");
+//        aesCipher.decrypt();
 //
-        System.out.println("encrypt");
-        aesCipher.encrypt();
-//        String cipherText = new String(aesCipher.cipherBytes, "UTF-8");
-        String cipherText = encoder.encodeToString(aesCipher.cipherBytes);
-//        String cipherText = new String(aesCipher.cipherBytes);
-        System.out.println("加密后：");
-        System.out.println(cipherText);
-        System.out.println(cipherText.length());
-//        System.out.printf("加密后为: %s\nlength=%d\n", cipherText, cipherText.length());
-        System.out.println(new String(decoder.decode(cipherText)));
-//
-        System.out.println("dddecrypt");
-        aesCipher.decrypt();
-
-//        String plainText = new String(aesCipher.decipherBytes, "UTF-8");
-        String plainText = encoder.encodeToString(aesCipher.decipherBytes);
-//        String plainText = new String(aesCipher.decipherBytes);
-        System.out.println("解密后：");
-        System.out.println(plainText);
-        System.out.println(plainText.length());
-//        System.out.printf("解密后为: %s\nlength=%d", plainText, plainText.length());
-        System.out.println(new String(decoder.decode(plainText)));
+////        String plainText = new String(aesCipher.decipherBytes, "UTF-8");
+//        String plainText = encoder.encodeToString(aesCipher.decipherBytes);
+////        String plainText = new String(aesCipher.decipherBytes);
+//        System.out.println("解密后：");
+//        System.out.println(plainText);
+//        System.out.println(plainText.length());
+////        System.out.printf("解密后为: %s\nlength=%d", plainText, plainText.length());
+//        System.out.println(new String(decoder.decode(plainText)));
 
 
 //        测试mixColumns
