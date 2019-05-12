@@ -413,7 +413,7 @@ public class AESCipher {
             System.out.printf("需要解密内容：\n", round);
             out(state, 0, 0, 4, 4);
             cur += groupLength;
-            addRoundKey(state, key, round);
+            addRoundKey(state, key, round); //与加密反序，从第11组密钥开始
 //            shiftRows(state, true); //书上
 //            subBytes(state, true);  //书上
 //            for (round = 9; round > 0; round--) {  //书上
@@ -431,7 +431,7 @@ public class AESCipher {
 //                System.out.println("end de-substituteByte");
                 addRoundKey(state, key, round);  // end De-addRoundKey
 //                System.out.println("end De-addRoundKey");
-                if (round > 0) {
+                if (round > 0) {    //最后一次不用逆列混淆
                     state = mixColumns(state, true); // end De-mixColumns
 //                    System.out.println("end De-mixColumns");
                 }
