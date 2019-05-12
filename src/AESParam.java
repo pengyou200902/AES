@@ -1,3 +1,8 @@
+/**
+ * @Author = Friende
+ * @Date = 2019/05/12
+ * @github = pengyou200902
+ */
 public class AESParam { //
 
     public static byte[][] Rcon = {    //轮常量，注意下标，有效下标从1开始
