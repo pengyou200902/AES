@@ -45,8 +45,8 @@ public class testCipher {
         System.out.println("原文Base64：\n" + encoder.encodeToString(textBytes));
 
         String cipherText = encoder.encodeToString(cipherBytes);
-        System.out.printf("加密后为: \n%s\tlength=%d\n", cipherText, cipherText.length());
-        System.out.println("加密后Base64：" + new String(decoder.decode(cipherText)));
+        System.out.printf("加密后Base64: \n%s\tlength=%d\n", cipherText, cipherText.length());
+        System.out.println("加密后为：" + new String(decoder.decode(cipherText)));
 
         String decipherText = encoder.encodeToString(decipherBytes);
         System.out.printf("解密后为: \n%s\tlength=%d\n", decipherText, decipherText.length());
@@ -55,7 +55,8 @@ public class testCipher {
 
 
     public static void main(String[] args) {
-        AESCipher aesCipher = getInstance();
-        goInstance(aesCipher);
+//        AESCipher aesCipher = getInstance();
+//        goInstance(aesCipher);
+        goStatic();
     }
 }
